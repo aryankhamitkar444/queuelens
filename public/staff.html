@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Staff</title>
+<style>body{font-family:sans-serif;text-align:center;padding:20px}button{font-size:22px;padding:20px;margin:8px;width:90%;border-radius:12px}</style></head><body>
+<div id="login">
+  <h2>Staff login</h2>
+  <input id="u" placeholder="username"><br><br>
+  <input id="p" type="password" placeholder="password"><br><br>
+  <button onclick="login()">Login</button>
+</div>
+<div id="panel" style="display:none">
+  <h2>Canteen status</h2>
+  <label>Wait: <select id="w"><option>0</option><option>5</option><option>10</option><option>20</option></select> min</label>
+  <button onclick="send('empty')">Empty</button>
+  <button onclick="send('moderate')">Moderate</button>
+  <button onclick="send('crowded')">Crowded</button>
+  <p id="msg"></p>
+</div>
+<script>
+let token = '';
+async function login(){
+  const r = await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({username:u.value,password:p.value})});
+  if(!r.ok) return alert('Wrong login');
+  token = (await r.json()).token;
+  login_.style.display='none'; panel.style.display='block';
+}
+const login_ = document.getElementById('login');
+async function send(level){
+  const r = await fetch('/api/status',{method:'POST',
+    headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},
+    body:JSON.stringify({place:'canteen',level,waitMin:+w.value})});
+  msg.textContent = r.ok ? 'Updated ✔' : 'Failed';
+}
+</script></body></html>

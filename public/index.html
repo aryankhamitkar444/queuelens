@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>QueueLens</title>
+<style>
+  body{font-family:sans-serif;text-align:center;padding:30px}
+  #box{padding:40px;border-radius:16px;color:#fff;font-size:28px}
+  .empty{background:#2e9e4f}.moderate{background:#e0a100}.crowded{background:#d33}.unknown{background:#888}
+</style></head><body>
+<h1>Canteen</h1>
+<div id="box" class="unknown">Loading...</div>
+<p id="info"></p>
+<script>
+async function load(){
+  const r = await (await fetch('/api/status/canteen')).json();
+  const box = document.getElementById('box');
+  box.className = r.isStale ? 'unknown' : r.level;
+  box.textContent = r.isStale ? 'No recent update' : r.level.toUpperCase() + (r.waitMin ? ' · ~' + r.waitMin + ' min' : '');
+  document.getElementById('info').textContent = r.minutesAgo != null ? 'Updated ' + r.minutesAgo + ' min ago' : '';
+}
+load(); setInterval(load, 15000);
+</script></body></html>
